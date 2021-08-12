@@ -30,7 +30,11 @@ import {
   weeklyBudgetPlainActions,
 } from './features/weekly-budget/weeklyBudgetDuck';
 import TransactionsView from './features/transactions/TransactionsView';
-import { transactionsActions } from './features/transactions/transactionsDuck';
+import {
+  client as transactionsClient,
+  transactionsActions,
+  transactionsPlainActions,
+} from './features/transactions/transactionsDuck';
 import LoginView from './features/auth/LoginView';
 import useBasicRequestData from './app/useBasicRequestData';
 import { projectsActions } from './features/projects/projectsDuck';
@@ -98,6 +102,7 @@ export default function App() {
       asyncReadData(categoriesClient, categoriesPlainActions);
       asyncReadData(monthlyBudgetClient, monthlyBudgetPlainActions);
       asyncReadData(weeklyBudgetClient, weeklyBudgetPlainActions);
+      asyncReadData(transactionsClient, transactionsPlainActions);
     }, 5000);
 
     return () => clearInterval(pollingInterval);

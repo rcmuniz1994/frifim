@@ -7,7 +7,7 @@ import {
 } from '../../app/firebase-adapters';
 import makeResourceMessageTextFn from '../izitoast-for-resources/makeResourceMessageTextFn';
 
-const client = makeFirestoreApiClient('transactions');
+export const client = makeFirestoreApiClient('transactions');
 
 const transactionsResource = makeReduxAssets({
   name: 'transactions',
@@ -26,6 +26,7 @@ const transactionsResource = makeReduxAssets({
   },
 });
 
-export const { actionThunks: transactionsActions } = transactionsResource;
+export const { actionThunks: transactionsActions, plainActions: transactionsPlainActions } =
+  transactionsResource;
 
 export default transactionsResource.reducer;
