@@ -9,7 +9,11 @@ import { BsExclamationTriangle } from 'react-icons/bs';
 import ProtectedRoute from './features/auth/ProtectedRoute';
 import useIzitoastForResource from './features/izitoast-for-resources/useIzitoastForResource';
 import CategoriesView from './features/categories/CategoriesView';
-import { categoriesActions } from './features/categories/categoriesDuck';
+import {
+  categoriesActions,
+  categoriesPlainActions,
+  client as categoriesClient,
+} from './features/categories/categoriesDuck';
 import MainMenu from './features/navbar/MainMenu';
 import MainFooter from './features/navbar/MainFooter';
 import MonthlyBudgetView from './features/monthly-budget/MonthlyBudgetView';
@@ -22,7 +26,7 @@ import { transactionsActions } from './features/transactions/transactionsDuck';
 import LoginView from './features/auth/LoginView';
 import useBasicRequestData from './app/useBasicRequestData';
 import { projectsActions } from './features/projects/projectsDuck';
-import { ProjectContext } from './app/contexts';
+import { PollingContext, ProjectContext } from './app/contexts';
 import LoadingMainContainer from './features/loading/LoadingMainContainer';
 import SignupView from './features/auth/SignupView';
 import firebaseApp from './app/firebase-configs';
@@ -33,6 +37,7 @@ import HelpView from './features/help/HelpView';
 export default function App() {
   const dispatch = useDispatch();
   const { project, setProject } = React.useContext(ProjectContext);
+  const { isPolling, setIsPolling } = React.useContext(PollingContext);
   const lastSelectedProject = useSelector((state) =>
     state.projects.items.length && state.auth.lastSelectedProjectUuid
       ? state.projects.items.find((it) => it.uuid === state.auth.lastSelectedProjectUuid)
@@ -64,10 +69,28 @@ export default function App() {
       return;
     }
 
-    dispatch(categoriesActions.readAll(basicRequestData));
-    dispatch(monthlyBudgetActions.readAll(basicRequestData));
-    dispatch(weeklyBudgetActions.readAll(basicRequestData));
-    dispatch(transactionsActions.readAll(basicRequestData));
+    if (!isPolling) {
+      dispatch(categoriesActions.readAll(basicRequestData));
+      dispatch(monthlyBudgetActions.readAll(basicRequestData));
+      dispatch(weeklyBudgetActions.readAll(basicRequestData));
+      dispatch(transactionsActions.readAll(basicRequestData));
+    }
+
+    async function asyncReadData(client, plainActions) {
+      setIsPolling(true);
+      const retrievedCategories = await client.read({
+        user: basicRequestData.user,
+        project: basicRequestData.project,
+      });
+      dispatch(plainActions.clearItems());
+      dispatch(plainActions.setRead(null, retrievedCategories));
+    }
+
+    const pollingInterval = setInterval(() => {
+      asyncReadData(categoriesClient, categoriesPlainActions);
+    }, 5000);
+
+    return () => clearInterval(pollingInterval);
   }, [
     dispatch,
     basicRequestData,
@@ -75,6 +98,8 @@ export default function App() {
     lastSelectedProject,
     defaultProject,
     setProject,
+    isPolling,
+    setIsPolling,
   ]);
 
   React.useEffect(() => {

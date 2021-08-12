@@ -2,7 +2,7 @@ import { makeReduxAssets } from 'resource-toolkit';
 import { makeFirestoreApiClient } from '../../app/firebase-adapters';
 import makeResourceMessageTextFn from '../izitoast-for-resources/makeResourceMessageTextFn';
 
-const client = makeFirestoreApiClient('categories');
+export const client = makeFirestoreApiClient('categories');
 
 const categoriesResource = makeReduxAssets({
   name: 'categories',
@@ -15,6 +15,7 @@ const categoriesResource = makeReduxAssets({
   },
 });
 
-export const { actionThunks: categoriesActions } = categoriesResource;
+export const { actionThunks: categoriesActions, plainActions: categoriesPlainActions } =
+  categoriesResource;
 
 export default categoriesResource.reducer;
