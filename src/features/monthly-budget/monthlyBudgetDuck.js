@@ -2,7 +2,7 @@ import { makeReduxAssets } from 'resource-toolkit';
 import { makeFirestoreApiClient, parseQuerySnapshot } from '../../app/firebase-adapters';
 import makeResourceMessageTextFn from '../izitoast-for-resources/makeResourceMessageTextFn';
 
-const client = makeFirestoreApiClient('monthly_budgets');
+export const client = makeFirestoreApiClient('monthly_budgets');
 
 const monthlyBudgetResource = makeReduxAssets({
   name: 'monthlyBudget',
@@ -22,6 +22,7 @@ const monthlyBudgetResource = makeReduxAssets({
   },
 });
 
-export const { actionThunks: monthlyBudgetActions } = monthlyBudgetResource;
+export const { actionThunks: monthlyBudgetActions, plainActions: monthlyBudgetPlainActions } =
+  monthlyBudgetResource;
 
 export default monthlyBudgetResource.reducer;

@@ -17,7 +17,11 @@ import {
 import MainMenu from './features/navbar/MainMenu';
 import MainFooter from './features/navbar/MainFooter';
 import MonthlyBudgetView from './features/monthly-budget/MonthlyBudgetView';
-import { monthlyBudgetActions } from './features/monthly-budget/monthlyBudgetDuck';
+import {
+  client as monthlyBudgetClient,
+  monthlyBudgetActions,
+  monthlyBudgetPlainActions,
+} from './features/monthly-budget/monthlyBudgetDuck';
 import Home from './features/home/Home';
 import WeeklyBudgetView from './features/weekly-budget/WeeklyBudgetView';
 import { weeklyBudgetActions } from './features/weekly-budget/weeklyBudgetDuck';
@@ -78,16 +82,17 @@ export default function App() {
 
     async function asyncReadData(client, plainActions) {
       setIsPolling(true);
-      const retrievedCategories = await client.read({
+      const retrievedData = await client.read({
         user: basicRequestData.user,
         project: basicRequestData.project,
       });
       dispatch(plainActions.clearItems());
-      dispatch(plainActions.setRead(null, retrievedCategories));
+      dispatch(plainActions.setRead(null, retrievedData));
     }
 
     const pollingInterval = setInterval(() => {
       asyncReadData(categoriesClient, categoriesPlainActions);
+      asyncReadData(monthlyBudgetClient, monthlyBudgetPlainActions);
     }, 5000);
 
     return () => clearInterval(pollingInterval);
