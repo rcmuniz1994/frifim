@@ -18,4 +18,13 @@ const categoriesResource = makeReduxAssets({
 export const { actionThunks: categoriesActions, plainActions: categoriesPlainActions } =
   categoriesResource;
 
+export async function asyncReadCategories(basicData, dispatch) {
+  const retrievedData = await client.read({
+    user: basicData.user,
+    project: basicData.project,
+  });
+  dispatch(categoriesPlainActions.clearItems());
+  dispatch(categoriesPlainActions.setRead(null, retrievedData));
+}
+
 export default categoriesResource.reducer;

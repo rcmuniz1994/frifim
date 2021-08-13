@@ -29,4 +29,15 @@ const transactionsResource = makeReduxAssets({
 export const { actionThunks: transactionsActions, plainActions: transactionsPlainActions } =
   transactionsResource;
 
+export async function asyncReadTransactions(basicData, dispatch) {
+  const retrievedData = await client
+    .query(basicData)
+    .where('datetime', '>=', makeFirstDateOfMonth(basicData.month, basicData.year))
+    .where('datetime', '<=', makeLastDateOfMonth(basicData.month, basicData.year))
+    .get()
+    .then(parseQuerySnapshot);
+  dispatch(transactionsPlainActions.clearItems());
+  dispatch(transactionsPlainActions.setRead(null, retrievedData));
+}
+
 export default transactionsResource.reducer;

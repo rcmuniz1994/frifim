@@ -9,31 +9,24 @@ import { BsExclamationTriangle } from 'react-icons/bs';
 import ProtectedRoute from './features/auth/ProtectedRoute';
 import useIzitoastForResource from './features/izitoast-for-resources/useIzitoastForResource';
 import CategoriesView from './features/categories/CategoriesView';
-import {
-  categoriesActions,
-  categoriesPlainActions,
-  client as categoriesClient,
-} from './features/categories/categoriesDuck';
+import { asyncReadCategories, categoriesActions } from './features/categories/categoriesDuck';
 import MainMenu from './features/navbar/MainMenu';
 import MainFooter from './features/navbar/MainFooter';
 import MonthlyBudgetView from './features/monthly-budget/MonthlyBudgetView';
 import {
-  client as monthlyBudgetClient,
+  asyncReadMonthlyBudget,
   monthlyBudgetActions,
-  monthlyBudgetPlainActions,
 } from './features/monthly-budget/monthlyBudgetDuck';
 import Home from './features/home/Home';
 import WeeklyBudgetView from './features/weekly-budget/WeeklyBudgetView';
 import {
-  client as weeklyBudgetClient,
+  asyncReadWeeklyBudget,
   weeklyBudgetActions,
-  weeklyBudgetPlainActions,
 } from './features/weekly-budget/weeklyBudgetDuck';
 import TransactionsView from './features/transactions/TransactionsView';
 import {
-  client as transactionsClient,
+  asyncReadTransactions,
   transactionsActions,
-  transactionsPlainActions,
 } from './features/transactions/transactionsDuck';
 import LoginView from './features/auth/LoginView';
 import useBasicRequestData from './app/useBasicRequestData';
@@ -88,21 +81,11 @@ export default function App() {
       dispatch(transactionsActions.readAll(basicRequestData));
     }
 
-    async function asyncReadData(client, plainActions) {
-      setIsPolling(true);
-      const retrievedData = await client.read({
-        user: basicRequestData.user,
-        project: basicRequestData.project,
-      });
-      dispatch(plainActions.clearItems());
-      dispatch(plainActions.setRead(null, retrievedData));
-    }
-
     const pollingInterval = setInterval(() => {
-      asyncReadData(categoriesClient, categoriesPlainActions);
-      asyncReadData(monthlyBudgetClient, monthlyBudgetPlainActions);
-      asyncReadData(weeklyBudgetClient, weeklyBudgetPlainActions);
-      asyncReadData(transactionsClient, transactionsPlainActions);
+      asyncReadCategories(basicRequestData, dispatch);
+      asyncReadMonthlyBudget(basicRequestData, dispatch);
+      asyncReadWeeklyBudget(basicRequestData, dispatch);
+      asyncReadTransactions(basicRequestData, dispatch);
     }, 5000);
 
     return () => clearInterval(pollingInterval);

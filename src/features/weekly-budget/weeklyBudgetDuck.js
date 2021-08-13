@@ -25,4 +25,15 @@ const weeklyBudgetResource = makeReduxAssets({
 export const { actionThunks: weeklyBudgetActions, plainActions: weeklyBudgetPlainActions } =
   weeklyBudgetResource;
 
+export async function asyncReadWeeklyBudget(basicData, dispatch) {
+  const retrievedData = await client
+    .query(basicData)
+    .where('year', '==', basicData.year)
+    .where('month', '==', basicData.month)
+    .get()
+    .then(parseQuerySnapshot);
+  dispatch(weeklyBudgetPlainActions.clearItems());
+  dispatch(weeklyBudgetPlainActions.setRead(null, retrievedData));
+}
+
 export default weeklyBudgetResource.reducer;

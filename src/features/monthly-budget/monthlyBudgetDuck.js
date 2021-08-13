@@ -22,7 +22,20 @@ const monthlyBudgetResource = makeReduxAssets({
   },
 });
 
+window.monthlyBudgetResource = monthlyBudgetResource;
+
 export const { actionThunks: monthlyBudgetActions, plainActions: monthlyBudgetPlainActions } =
   monthlyBudgetResource;
+
+export async function asyncReadMonthlyBudget(basicData, dispatch) {
+  const retrievedData = await client
+    .query(basicData)
+    .where('year', '==', basicData.year)
+    .where('month', '==', basicData.month)
+    .get()
+    .then(parseQuerySnapshot);
+  dispatch(monthlyBudgetPlainActions.clearItems());
+  dispatch(monthlyBudgetPlainActions.setRead(null, retrievedData));
+}
 
 export default monthlyBudgetResource.reducer;
